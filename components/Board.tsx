@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Sparkles, CalendarRange, X } from "lucide-react";
+import { Plus, Sparkles, CalendarRange, X, Download } from "lucide-react";
 import ActionItemCard from "@/components/ActionItemCard";
 import SmartAddModal from "@/components/SmartAddModal";
 import { statusPapan, type ActionItem, type StatusDb, type StatusPapan } from "@/lib/types";
 import { COLUMN_STYLES } from "@/lib/statusStyles";
+import { downloadItemsAsExcel } from "@/lib/exportCsv";
 
 const COLUMNS: StatusPapan[] = ["belum_mulai", "berjalan", "selesai", "overdue"];
 
@@ -68,15 +69,25 @@ export default function Board() {
               <span>🎯</span>
               <span>Kejarin</span>
             </h1>
-            <p className="mt-1 text-sm text-white/60">Papan Action Item</p>
+            <p className="mt-1 text-sm text-white/60">Follow Up Result Meeting</p>
           </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow-lg transition-transform hover:scale-105 active:scale-95"
-          >
-            <Plus size={16} strokeWidth={3} />
-            Tambah Item
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => downloadItemsAsExcel(filteredItems)}
+              disabled={filteredItems.length === 0}
+              className="flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white shadow-md ring-1 ring-white/15 transition-transform hover:scale-105 active:scale-95 disabled:pointer-events-none disabled:opacity-40"
+            >
+              <Download size={16} strokeWidth={2.5} />
+              Download Excel
+            </button>
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow-lg transition-transform hover:scale-105 active:scale-95"
+            >
+              <Plus size={16} strokeWidth={3} />
+              Tambah Item
+            </button>
+          </div>
         </div>
 
         <div className="mb-6 flex flex-wrap items-center gap-2 rounded-2xl bg-white/5 p-3 ring-1 ring-white/10">
