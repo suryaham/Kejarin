@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Plus, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Plus, Sparkles, CalendarRange, X } from "lucide-react";
 import ActionItemCard from "@/components/ActionItemCard";
 import SmartAddModal from "@/components/SmartAddModal";
 import { statusPapan, type ActionItem, type StatusDb, type StatusPapan } from "@/lib/types";
@@ -13,6 +13,8 @@ export default function Board() {
   const [items, setItems] = useState<ActionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   useEffect(() => {
     let ignore = false;
@@ -47,15 +49,26 @@ export default function Board() {
     setShowModal(false);
   }
 
+  const filteredItems = useMemo(() => {
+    return items.filter((it) => {
+      if (dateFrom && it.deadline < dateFrom) return false;
+      if (dateTo && it.deadline > dateTo) return false;
+      return true;
+    });
+  }, [items, dateFrom, dateTo]);
+
+  const isFiltering = dateFrom !== "" || dateTo !== "";
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-500 via-indigo-500 to-sky-500">
+    <div className="min-h-screen bg-black">
       <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white drop-shadow-sm">
-              🎯 Kejarin
+            <h1 className="flex items-center gap-3 text-4xl font-extrabold tracking-tight text-white drop-shadow-sm sm:text-5xl">
+              <span>🎯</span>
+              <span>Kejarin</span>
             </h1>
-            <p className="text-sm text-white/80">Papan Action Item</p>
+            <p className="mt-1 text-sm text-white/60">Papan Action Item</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -66,17 +79,49 @@ export default function Board() {
           </button>
         </div>
 
+        <div className="mb-6 flex flex-wrap items-center gap-2 rounded-2xl bg-white/5 p-3 ring-1 ring-white/10">
+          <div className="flex items-center gap-1.5 text-sm text-white/70">
+            <CalendarRange size={16} />
+            Filter deadline:
+          </div>
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="rounded-lg border-0 bg-white/10 px-2.5 py-1.5 text-sm text-white outline-none ring-1 ring-inset ring-white/10 [color-scheme:dark] focus:ring-2 focus:ring-indigo-400"
+          />
+          <span className="text-sm text-white/50">s/d</span>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="rounded-lg border-0 bg-white/10 px-2.5 py-1.5 text-sm text-white outline-none ring-1 ring-inset ring-white/10 [color-scheme:dark] focus:ring-2 focus:ring-indigo-400"
+          />
+          {isFiltering && (
+            <button
+              onClick={() => {
+                setDateFrom("");
+                setDateTo("");
+              }}
+              className="flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-1.5 text-xs font-medium text-white/80 transition-colors hover:bg-white/20"
+            >
+              <X size={12} />
+              Reset
+            </button>
+          )}
+        </div>
+
         {loading ? (
           <p className="text-sm text-white/90">Memuat...</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {COLUMNS.map((col) => {
               const style = COLUMN_STYLES[col];
-              const colItems = items.filter((it) => statusPapan(it) === col);
+              const colItems = filteredItems.filter((it) => statusPapan(it) === col);
               return (
                 <div
                   key={col}
-                  className="flex flex-col rounded-2xl bg-white/15 p-2.5 backdrop-blur-sm"
+                  className="flex flex-col rounded-2xl bg-white/5 p-2.5 ring-1 ring-white/10"
                 >
                   <div
                     className={`mb-2.5 flex items-center justify-between rounded-xl ${style.headerBg} px-3 py-2 shadow-sm`}
@@ -90,8 +135,8 @@ export default function Board() {
                   </div>
                   <div className="flex min-h-[80px] flex-col gap-2.5">
                     {colItems.length === 0 ? (
-                      <p className="rounded-xl border-2 border-dashed border-white/30 py-6 text-center text-xs text-white/70">
-                        Belum ada item di sini
+                      <p className="rounded-xl border-2 border-dashed border-white/20 py-6 text-center text-xs text-white/50">
+                        {isFiltering ? "Tidak ada item di rentang ini" : "Belum ada item di sini"}
                       </p>
                     ) : (
                       colItems.map((item) => (
@@ -111,7 +156,7 @@ export default function Board() {
         )}
 
         {items.length === 0 && !loading && (
-          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-white/80">
+          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-white/70">
             <Sparkles size={16} />
             Klik &quot;Tambah Item&quot; untuk mulai mencatat action item rapat kamu
           </div>
