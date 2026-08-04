@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { extractActionItem } from "@/lib/anthropic";
+import { extractActionItem } from "@/lib/gemini";
 
 export async function POST(req: NextRequest) {
   const { text } = (await req.json()) as { text?: string };

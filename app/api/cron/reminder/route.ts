@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
-import { generateReminderMessage, type Urgency } from "@/lib/anthropic";
+import { generateReminderMessage, type Urgency } from "@/lib/gemini";
 import { sendWhatsAppMessage } from "@/lib/twilio";
 import type { ActionItem } from "@/lib/types";
 
