@@ -1,16 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Plus, Sparkles } from "lucide-react";
 import ActionItemCard from "@/components/ActionItemCard";
 import SmartAddModal from "@/components/SmartAddModal";
 import { statusPapan, type ActionItem, type StatusDb, type StatusPapan } from "@/lib/types";
+import { COLUMN_STYLES } from "@/lib/statusStyles";
 
-const COLUMNS: { key: StatusPapan; label: string }[] = [
-  { key: "belum_mulai", label: "Belum Mulai" },
-  { key: "berjalan", label: "Berjalan" },
-  { key: "selesai", label: "Selesai" },
-  { key: "overdue", label: "Overdue" },
-];
+const COLUMNS: StatusPapan[] = ["belum_mulai", "berjalan", "selesai", "overdue"];
 
 export default function Board() {
   const [items, setItems] = useState<ActionItem[]>([]);
@@ -51,49 +48,75 @@ export default function Board() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
-            Kejarin
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Papan Action Item
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-violet-500 via-indigo-500 to-sky-500">
+      <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white drop-shadow-sm">
+              🎯 Kejarin
+            </h1>
+            <p className="text-sm text-white/80">Papan Action Item</p>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-semibold text-indigo-600 shadow-lg transition-transform hover:scale-105 active:scale-95"
+          >
+            <Plus size={16} strokeWidth={3} />
+            Tambah Item
+          </button>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-        >
-          + Tambah Item
-        </button>
-      </div>
 
-      {loading ? (
-        <p className="text-sm text-zinc-500">Memuat...</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {COLUMNS.map((col) => {
-            const colItems = items.filter((it) => statusPapan(it) === col.key);
-            return (
-              <div key={col.key} className="rounded-lg bg-zinc-100 p-3 dark:bg-zinc-950">
-                <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                  {col.label} ({colItems.length})
-                </h2>
-                <div className="flex flex-col gap-2">
-                  {colItems.map((item) => (
-                    <ActionItemCard
-                      key={item.id}
-                      item={item}
-                      onStatusChange={handleStatusChange}
-                    />
-                  ))}
+        {loading ? (
+          <p className="text-sm text-white/90">Memuat...</p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {COLUMNS.map((col) => {
+              const style = COLUMN_STYLES[col];
+              const colItems = items.filter((it) => statusPapan(it) === col);
+              return (
+                <div
+                  key={col}
+                  className="flex flex-col rounded-2xl bg-white/15 p-2.5 backdrop-blur-sm"
+                >
+                  <div
+                    className={`mb-2.5 flex items-center justify-between rounded-xl ${style.headerBg} px-3 py-2 shadow-sm`}
+                  >
+                    <span className="text-sm font-semibold text-white">
+                      {style.emoji} {style.label}
+                    </span>
+                    <span className="rounded-full bg-white/25 px-2 py-0.5 text-xs font-semibold text-white">
+                      {colItems.length}
+                    </span>
+                  </div>
+                  <div className="flex min-h-[80px] flex-col gap-2.5">
+                    {colItems.length === 0 ? (
+                      <p className="rounded-xl border-2 border-dashed border-white/30 py-6 text-center text-xs text-white/70">
+                        Belum ada item di sini
+                      </p>
+                    ) : (
+                      colItems.map((item) => (
+                        <ActionItemCard
+                          key={item.id}
+                          item={item}
+                          columnStatus={col}
+                          onStatusChange={handleStatusChange}
+                        />
+                      ))
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+
+        {items.length === 0 && !loading && (
+          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-white/80">
+            <Sparkles size={16} />
+            Klik &quot;Tambah Item&quot; untuk mulai mencatat action item rapat kamu
+          </div>
+        )}
+      </div>
 
       {showModal && (
         <SmartAddModal
