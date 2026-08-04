@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Sparkles, CalendarRange, X, Download } from "lucide-react";
-import ActionItemCard from "@/components/ActionItemCard";
+import ActionItemCard, { type ItemEditPatch } from "@/components/ActionItemCard";
 import SmartAddModal from "@/components/SmartAddModal";
 import { statusPapan, type ActionItem, type StatusDb, type StatusPapan } from "@/lib/types";
 import { COLUMN_STYLES } from "@/lib/statusStyles";
@@ -42,6 +42,17 @@ export default function Board() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
+    });
+  }
+
+  async function handleEdit(id: string, patch: ItemEditPatch) {
+    setItems((prev) =>
+      prev.map((it) => (it.id === id ? { ...it, ...patch } : it))
+    );
+    await fetch(`/api/items/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(patch),
     });
   }
 
@@ -156,6 +167,7 @@ export default function Board() {
                           item={item}
                           columnStatus={col}
                           onStatusChange={handleStatusChange}
+                          onEdit={handleEdit}
                         />
                       ))
                     )}
