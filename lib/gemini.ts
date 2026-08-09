@@ -46,35 +46,3 @@ Tanggal hari ini adalah ${todayIso}. Konversikan deadline relatif (mis. "Jumat d
   }
   return JSON.parse(text_) as ExtractedActionItem;
 }
-
-export type Urgency = "h_minus_1" | "overdue";
-
-export async function generateReminderMessage(params: {
-  picNama: string;
-  deskripsiTugas: string;
-  deadline: string;
-  urgency: Urgency;
-}): Promise<string> {
-  const { picNama, deskripsiTugas, deadline, urgency } = params;
-
-  const nadaInstruksi =
-    urgency === "h_minus_1"
-      ? "Nada pesan santai dan ramah, mengingatkan bahwa deadline besok."
-      : "Nada pesan lebih tegas dan mendesak, karena deadline sudah lewat dan tugas belum selesai.";
-
-  const response = await client.models.generateContent({
-    model: MODEL,
-    contents: `PIC: ${picNama}\nTugas: ${deskripsiTugas}\nDeadline: ${deadline}`,
-    config: {
-      systemInstruction: `Kamu menulis pesan pengingat WhatsApp singkat (2-4 kalimat) dalam Bahasa Indonesia untuk PIC tugas rapat. ${nadaInstruksi}
-Sertakan nama PIC, deskripsi tugas, dan deadline. Jangan pakai salam pembuka formal berlebihan. Balas hanya dengan isi pesannya, tanpa embel-embel lain.`,
-      maxOutputTokens: 300,
-    },
-  });
-
-  const text = response.text;
-  if (!text) {
-    throw new Error("Gemini API tidak mengembalikan pesan pengingat");
-  }
-  return text.trim();
-}
