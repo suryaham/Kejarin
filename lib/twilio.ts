@@ -16,20 +16,20 @@ function getClient() {
   return client;
 }
 
-function toWhatsAppAddress(nomor: string): string {
+function toE164(nomor: string): string {
   const trimmed = nomor.trim();
-  return trimmed.startsWith("whatsapp:") ? trimmed : `whatsapp:+${trimmed.replace(/^\+/, "")}`;
+  return trimmed.startsWith("+") ? trimmed : `+${trimmed}`;
 }
 
-export async function sendWhatsAppMessage(nomorTujuan: string, body: string) {
-  const from = process.env.TWILIO_WHATSAPP_FROM;
+export async function sendReminderSms(nomorTujuan: string, body: string) {
+  const from = process.env.TWILIO_SMS_FROM;
   if (!from) {
-    throw new Error("TWILIO_WHATSAPP_FROM belum diset. Lihat .env.example.");
+    throw new Error("TWILIO_SMS_FROM belum diset. Lihat .env.example.");
   }
   const c = getClient();
   return c.messages.create({
-    from: toWhatsAppAddress(from),
-    to: toWhatsAppAddress(nomorTujuan),
+    from: toE164(from),
+    to: toE164(nomorTujuan),
     body,
   });
 }

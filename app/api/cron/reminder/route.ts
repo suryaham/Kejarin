@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { query } from "@/lib/db";
 import { generateReminderMessage, type Urgency } from "@/lib/gemini";
-import { sendWhatsAppMessage } from "@/lib/twilio";
+import { sendReminderSms } from "@/lib/twilio";
 import type { ActionItem } from "@/lib/types";
 
 function isAuthorized(req: NextRequest): boolean {
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
         urgency,
       });
 
-      await sendWhatsAppMessage(item.pic_nomor_wa, message);
+      await sendReminderSms(item.pic_nomor_wa, message);
 
       await query(
         `insert into reminder_logs (action_item_id, pesan_terkirim) values ($1, $2)`,
