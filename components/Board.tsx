@@ -77,7 +77,7 @@ export default function Board() {
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="flex items-center gap-3 text-4xl font-extrabold tracking-tight text-white drop-shadow-sm sm:text-5xl">
-              <span>🎯</span>
+              <span>📋</span>
               <span>Kejarin</span>
             </h1>
             <p className="mt-1 text-sm text-white/60">Follow Up Result Meeting</p>
